@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -24,13 +24,13 @@ export class ProductController {
   async findAll(@Query('page') page: number) {
     try {
       const result = await this.productService.findAll(page);
-      return result;
+      return {statusCode: HttpStatus.OK, data: result};
     }
     catch(err) {
       if (err instanceof RequestError) {
         throw new HttpException(err.message, err.status);
       }
-      throw new HttpException(err, 500);
+      throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
   }
 
