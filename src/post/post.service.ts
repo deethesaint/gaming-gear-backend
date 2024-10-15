@@ -3,6 +3,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Model } from 'mongoose';
 import { Post } from './entities/post.entity';
+import { BasePagination } from 'src/base/pagination.base';
 
 @Injectable()
 export class PostService {
@@ -14,8 +15,20 @@ export class PostService {
     return newPost.save();
   }
 
-  async findAll(): Promise<Post[]> {
-    return this.postModel.find().exec();
+  async findAll(
+    page: number = 1
+  ) {
+    const count = await this.postModel.countDocuments({}).exec();
+    const totalPages = Math.floor((count - 1) / 1) + 1;
+    const data = await this.postModel.find().skip(1 * (page - 1)).limit(1).exec();
+
+    const paginatedData = new BasePagination<Model<Post>>(data, page as number, totalPages);
+
+    return paginatedData;
+  }
+
+  async findQuery(): Promise<Post[]> {
+    return this.postModel.find();
   }
 
   findOne(id: number) {
